@@ -26,8 +26,7 @@ appsettings.json:
 ```json
 {
   "MTCaptcha": {
-    "PrivateKey": "YOUR_PRIVATE_KEY",
-    "VerificationUrl": "https://service.mtcaptcha.com/mtcv1/api/checktoken.json"
+    "PrivateKey": "YOUR_PRIVATE_KEY"
   }
 }
 ```
@@ -44,9 +43,10 @@ Program.cs:
 builder.Services.AddMTCaptcha(options =>
 {
     options.PrivateKey = "YOUR_PRIVATE_KEY";
-    options.VerificationUrl = "https://service.mtcaptcha.com/mtcv1/api/checktoken.json";
 });
 ```
+
+**Note:** The verification URL is automatically configured and does not need to be specified.
 
 ## Usage
 

@@ -15,7 +15,9 @@ namespace MTCaptcha.NetCore.Services
     {
         private readonly HttpClient _httpClient;
         private readonly MTCaptchaOptions _options;
-        private readonly ILogger<MTCaptchaService> _logger;
+        private readonly ILogger<MTCaptchaService>? _logger;
+
+        private const string VerificationUrl = "https://service.mtcaptcha.com/mtcv1/api/checktoken.json";
 
         private static readonly Dictionary<string, string> FailMessages = new()
         {
@@ -33,18 +35,18 @@ namespace MTCaptcha.NetCore.Services
             {"unknown-error", "Something went wrong!"}
         };
 
-        public MTCaptchaService(HttpClient httpClient, IOptions<MTCaptchaOptions> options, ILogger<MTCaptchaService> logger)
+        public MTCaptchaService(HttpClient httpClient, IOptions<MTCaptchaOptions> options, ILogger<MTCaptchaService>? logger = null)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _logger = logger;
         }
 
         public async Task<MTCaptchaCheckTokenResponse> VerifyCheckTokenAsync(string token)
         {
             if (string.IsNullOrWhiteSpace(token))
             {
-                _logger.LogWarning("VerifyCheckTokenAsync called with empty or null token");
+                _logger?.LogWarning("VerifyCheckTokenAsync called with empty or null token");
                 return new MTCaptchaCheckTokenResponse
                 {
                     Success = false,
@@ -57,15 +59,15 @@ namespace MTCaptcha.NetCore.Services
                 // Properly URL encode query parameters to prevent injection and encoding issues
                 var encodedPrivateKey = Uri.EscapeDataString(_options.PrivateKey);
                 var encodedToken = Uri.EscapeDataString(token);
-                var requestUrl = $"{_options.VerificationUrl}?privatekey={encodedPrivateKey}&token={encodedToken}";
+                var requestUrl = $"{VerificationUrl}?privatekey={encodedPrivateKey}&token={encodedToken}";
 
-                _logger.LogDebug("Verifying MTCaptcha token");
+                _logger?.LogDebug("Verifying MTCaptcha token");
 
                 var response = await _httpClient.GetAsync(requestUrl);
                 
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("MTCaptcha API returned non-success status code: {StatusCode} {ReasonPhrase}", 
+                    _logger?.LogWarning("MTCaptcha API returned non-success status code: {StatusCode} {ReasonPhrase}", 
                         (int)response.StatusCode, response.ReasonPhrase);
                     return new MTCaptchaCheckTokenResponse
                     {
@@ -79,7 +81,7 @@ namespace MTCaptcha.NetCore.Services
                 // If content starts with < this is HTML -> fail early
                 if (json.TrimStart().StartsWith("<"))
                 {
-                    _logger.LogWarning("MTCaptcha API returned HTML instead of JSON");
+                    _logger?.LogWarning("MTCaptcha API returned HTML instead of JSON");
                     return new MTCaptchaCheckTokenResponse
                     {
                         Success = false,
@@ -92,7 +94,7 @@ namespace MTCaptcha.NetCore.Services
 
                 if (result == null)
                 {
-                    _logger.LogWarning("Failed to deserialize MTCaptcha response");
+                    _logger?.LogWarning("Failed to deserialize MTCaptcha response");
                     return new MTCaptchaCheckTokenResponse
                     {
                         Success = false,
@@ -102,7 +104,7 @@ namespace MTCaptcha.NetCore.Services
 
                 if (result.FailCodes != null && result.FailCodes.Count > 0)
                 {
-                    _logger.LogWarning("MTCaptcha verification failed with codes: {FailCodes}", 
+                    _logger?.LogWarning("MTCaptcha verification failed with codes: {FailCodes}", 
                         string.Join(", ", result.FailCodes));
                     
                     var mapped = new Dictionary<string, string>();
@@ -118,14 +120,14 @@ namespace MTCaptcha.NetCore.Services
                 }
                 else if (result.Success)
                 {
-                    _logger.LogDebug("MTCaptcha token verified successfully");
+                    _logger?.LogDebug("MTCaptcha token verified successfully");
                 }
 
                 return result;
             }
             catch (HttpRequestException ex)
             {
-                _logger.LogError(ex, "Network error while verifying MTCaptcha token");
+                _logger?.LogError(ex, "Network error while verifying MTCaptcha token");
                 return new MTCaptchaCheckTokenResponse
                 {
                     Success = false,
@@ -134,7 +136,7 @@ namespace MTCaptcha.NetCore.Services
             }
             catch (TaskCanceledException ex)
             {
-                _logger.LogWarning(ex, "Request timeout while verifying MTCaptcha token");
+                _logger?.LogWarning(ex, "Request timeout while verifying MTCaptcha token");
                 return new MTCaptchaCheckTokenResponse
                 {
                     Success = false,
@@ -143,7 +145,7 @@ namespace MTCaptcha.NetCore.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error while verifying MTCaptcha token");
+                _logger?.LogError(ex, "Unexpected error while verifying MTCaptcha token");
                 return new MTCaptchaCheckTokenResponse
                 {
                     Success = false,

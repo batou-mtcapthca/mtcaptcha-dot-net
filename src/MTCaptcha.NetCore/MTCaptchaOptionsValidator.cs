@@ -26,17 +26,6 @@ namespace MTCaptcha.NetCore.Options
                 return ValidateOptionsResult.Fail("PrivateKey is required and cannot be empty. Please configure your MTCaptcha private key.");
             }
 
-            if (string.IsNullOrWhiteSpace(options.VerificationUrl))
-            {
-                return ValidateOptionsResult.Fail("VerificationUrl is required and cannot be empty.");
-            }
-
-            if (!Uri.TryCreate(options.VerificationUrl, UriKind.Absolute, out var uri) || 
-                (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
-            {
-                return ValidateOptionsResult.Fail($"VerificationUrl must be a valid HTTP or HTTPS URL. Current value: '{options.VerificationUrl}'");
-            }
-
             return ValidateOptionsResult.Success;
         }
     }

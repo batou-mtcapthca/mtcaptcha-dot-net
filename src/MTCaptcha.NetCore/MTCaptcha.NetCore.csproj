@@ -1,34 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
     
     <!-- NuGet Package Metadata -->
     <PackageId>MTCaptcha.NetCore</PackageId>
     <Version>0.5.0</Version>
     <Authors>MTCaptcha</Authors>
+    <Company>MTCaptcha</Company>
     <Description>MTCaptcha integration library for .NET Core. Provides server-side token verification for MTCaptcha in ASP.NET Core applications.</Description>
     <PackageTags>mtcaptcha;captcha;security;verification;aspnetcore;dotnet</PackageTags>
     <RepositoryUrl>https://github.com/mtcaptcha-public/mtcaptcha-dot-net</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageProjectUrl>https://github.com/mtcaptcha-public/mtcaptcha-dot-net</PackageProjectUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageReleaseNotes>Initial stable release with server-side MTCaptcha token verification.</PackageReleaseNotes>
   </PropertyGroup>
 
-<ItemGroup>
+  <ItemGroup>
     <!-- Contains IServiceCollection, AddHttpClient extension, HttpClientFactory -->
-    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0-preview.3.24172.9" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
 
     <!-- Required for Options pattern (IOptions<> / Configure()) -->
-    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0-preview.3.24172.9" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+    
+    <!-- Required for Configure<T>(IConfigurationSection) extension -->
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
 
     <!-- Logging abstractions for ILogger support -->
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0-preview.3.24172.9" />
-
-    <!-- JSON HTTP helpers: PostAsJsonAsync, ReadFromJsonAsync -->
-    <PackageReference Include="System.Net.Http.Json" Version="9.0.0-preview.3.24172.9" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

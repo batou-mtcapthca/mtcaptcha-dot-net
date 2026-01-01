@@ -1,2 +1,5 @@
 bin/
 obj/
+
+# Demo application (for local testing only, not for commit)
+demo/
